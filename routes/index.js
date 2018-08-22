@@ -41,7 +41,7 @@ function weatherAPI(path, qs, done) {
 
 router.get('/api/forecast/daily', function(req, res) {
   var geocode = (req.query.geocode || "45.43,-75.68").split(",");
-  weatherAPI("/api/weather/v1/geocode/" + geocode[0] + "/" + geocode[1] + "/forecast/daily/10day.json", {
+  weatherAPI("/api/weather/v1/geocode/" + geocode[0] + "/" + geocode[1] + "/forecast/daily/3day.json", {
       units: req.query.units || "m",
       language: req.query.language || "en"
   }, function(err, result) {

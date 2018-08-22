@@ -79,8 +79,14 @@
         
     </div>
     <div id="weather-data">
-        Tesing 123
+       Tesing 123 
     </div>
+    <div class="form-group">
+        <button id="getSensorData" class="btn_size" >Sensor-Data</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        
+        </div>
+        <div id="get-SensorData">
+        </div>
 
 <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false&libraries=places"></script>   
 <script type="text/javascript">
@@ -97,22 +103,52 @@
             } else {
             document.getElementById("lat").innerHTML=results[0].geometry.location.lat();
             document.getElementById("lng").innerHTML=results[0].geometry.location.lng();
-        }
-        });
+
+            //weather function
+                    $.get( 'api/forecast/daily?geocode='+$('#lat').text()+','+$('#lng').text(), function( data ) {
+                    var htmlString = "";
+                    for(var i=0 ; i <data.forecasts.length ; i++  ) {
+                    var pop_day = data.forecasts[i].day.pop;
+                    var pop_night = data.forecasts[i].night.pop;
+                // "<table><tr><th>minimum temperature</th><th>humidity</th><th></th></tr><tr>"
+                    htmlString+="day:"+pop_day+";night:"+pop_night+","
+                // "<tr><th>"
+                }
+                var next_day = data.forecasts[1].day.pop;
+                var next_night = data.forecasts[1].night.pop;
+            $( "#weather-data" ).html( htmlString );
+            console.log( data );
+
+            //sensor data
+            $.get( 'api/iot/getLastEvent', function( data ) {
+            var sensor_data = JSON.parse(data).d.value; 
+          
+             console.log( data );
+             if(sensor_data<0 && (next_day >50 || next_night>50))
+                $( "#get-SensorData" ).html("do not irrigate!!,As it will rain tomorrow" );
+            else if(sensor_data<0  && (next_day <50 || next_night<50) )
+            $( "#get-SensorData" ).html(" irrigate!!,As it will not rain tomorrow" );
+            else
+            $( "#get-SensorData" ).html(" don't irrigate!! " );
+            
+
+    });
+            });
+
+            }
+            });
     }
 
     $("#getWeather").click(function(){
        console.log("called getWeathee")
-        $.get( 'api/forecast/daily', function( data ) {
-            var htmlString = "";
-        for(var i=0 ; i <data.forecasts.length ; i++  ) {
-            var minTemp = data.forecasts[i].min_temp;
-            htmlString+=minTemp +"<tr>"
-        }
-        $( "#weather-data" ).html( htmlString );
-        console.log( data );
-        });
+       
     });
+
+     $("#getSensorData").click(function(){
+       console.log("called get sensor data")
+        
+    });
+
         google.maps.event.addDomListener(window, 'load', initialize);
         /*function print(){
             alert(lat);
@@ -123,11 +159,8 @@
      <div class="form-group">
         <hr />
     </div>
-    
-<div class="form-group">
-<button id="getSensorData" class="btn_size" >Sensor-Data</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+   
 
-</div>
 
 </body>
 </HTML>
